@@ -1,0 +1,2047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FastAPI Systems Engineering: Modern API Architecture & Production Backend</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0d0d0e;
+    --ink-2: #3a3a40;
+    --ink-3: #6b6b74;
+    --ink-4: #9a9aa3;
+    --rule: #e2e2e8;
+    --surface: #f8f8fb;
+    --surface-2: #ffffff;
+    --accent: #1a3a6b;
+    --accent-light: #e8edf7;
+    --accent-mid: #2d5fa8;
+    --green: #1a5c3a;
+    --green-light: #e6f3ec;
+    --amber: #6b3e0d;
+    --amber-light: #fdf2e4;
+    --red: #6b1a1a;
+    --red-light: #fce8e8;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'Instrument Sans', system-ui, sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  html { font-size: 16px; }
+  body {
+    font-family: var(--sans);
+    background: var(--surface-2);
+    color: var(--ink);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    background: var(--ink);
+    color: #fff;
+    padding: 80px 72px 72px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.035) 39px, rgba(255,255,255,0.035) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.035) 39px, rgba(255,255,255,0.035) 40px);
+    pointer-events: none;
+  }
+  .cover-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    margin-bottom: 40px;
+  }
+  .cover h1 {
+    font-family: var(--serif);
+    font-size: clamp(32px, 5vw, 52px);
+    line-height: 1.1;
+    font-weight: 400;
+    color: #fff;
+    max-width: 720px;
+    margin-bottom: 28px;
+  }
+  .cover h1 em { font-style: italic; color: rgba(255,255,255,0.55); }
+  .cover-sub {
+    color: rgba(255,255,255,0.55);
+    font-size: 15px;
+    max-width: 580px;
+    margin-top: 16px;
+    line-height: 1.65;
+  }
+  .cover-meta {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 0.5px solid rgba(255,255,255,0.15);
+  }
+  .cover-meta-item { font-size: 13px; color: rgba(255,255,255,0.5); }
+  .cover-meta-item strong { display: block; color: rgba(255,255,255,0.9); font-size: 14px; margin-bottom: 2px; }
+
+  /* ── TOC ── */
+  .toc-wrap {
+    background: var(--surface);
+    border-bottom: 1px solid var(--rule);
+    padding: 48px 72px;
+  }
+  .toc-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--ink-4);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 6px 32px;
+  }
+  .toc-item {
+    display: flex;
+    gap: 10px;
+    font-size: 13.5px;
+    color: var(--ink-2);
+    text-decoration: none;
+    padding: 5px 0;
+    transition: color 0.15s;
+  }
+  .toc-item:hover { color: var(--accent-mid); }
+  .toc-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-4);
+    min-width: 28px;
+    padding-top: 2px;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .content {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 72px 48px 96px;
+  }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 64px; }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .section-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-4);
+    min-width: 28px;
+  }
+  .section-header h2 {
+    font-family: var(--serif);
+    font-size: 26px;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  p { font-size: 15.5px; color: var(--ink-2); margin-bottom: 14px; }
+
+  /* ── SIMPLE BOX ── */
+  .simple-box {
+    margin: 20px 0 24px;
+    padding: 20px 24px;
+    background: var(--surface);
+    border: 0.5px solid var(--rule);
+    border-radius: 10px;
+  }
+  .simple-box-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--ink-4);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .simple-box p { font-size: 15px; color: var(--ink-2); margin: 0; line-height: 1.65; }
+
+  /* ── COMPONENT CARDS ── */
+  .component-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .component-card {
+    background: var(--surface);
+    border: 0.5px solid var(--rule);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .component-card-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--accent-light);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 12px;
+  }
+  .component-card-icon svg { width: 17px; height: 17px; stroke: var(--accent); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .component-card h3 { font-size: 13.5px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .component-card .simple-role { font-size: 12px; color: var(--accent-mid); font-family: var(--mono); margin-bottom: 8px; display: block; }
+  .component-card p { font-size: 13px; color: var(--ink-3); margin: 0; line-height: 1.55; }
+
+  /* ── PIPELINE ── */
+  .pipeline {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    border: 0.5px solid var(--rule);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .pipeline-step {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    border-bottom: 0.5px solid var(--rule);
+    background: var(--surface-2);
+  }
+  .pipeline-step:last-child { border-bottom: none; }
+  .pipeline-step-num {
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-4);
+    border-right: 0.5px solid var(--rule);
+    min-height: 72px;
+  }
+  .pipeline-step-body { padding: 16px 20px; }
+  .pipeline-step-body h4 { font-size: 13.5px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+  .pipeline-step-body .plain-english { font-size: 12px; color: var(--accent-mid); font-family: var(--mono); margin-bottom: 5px; display: block; }
+  .pipeline-step-body p { font-size: 13px; color: var(--ink-3); margin: 0; }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    margin: 20px 0;
+    border: 0.5px solid var(--rule);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .code-block-header {
+    background: var(--surface);
+    border-bottom: 0.5px solid var(--rule);
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .code-block-header .code-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.05em;
+  }
+  .code-block-header .code-lang {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    background: var(--accent-light);
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.06em;
+  }
+  .code-block pre {
+    background: #0d0d0e;
+    color: #e8e8f0;
+    padding: 20px 24px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.75;
+    overflow-x: auto;
+    margin: 0;
+  }
+  .code-block pre .kw { color: #7eb8f7; }
+  .code-block pre .fn { color: #a8d4a8; }
+  .code-block pre .str { color: #f0c97e; }
+  .code-block pre .cm { color: #6b6b7a; font-style: italic; }
+  .code-block pre .dec { color: #f0a0c0; }
+  .code-block pre .tp { color: #c8a8f0; }
+  .code-block pre .num { color: #f0c97e; }
+
+  /* ── COMPARISON TABLE ── */
+  .comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 24px;
+    font-size: 13.5px;
+    border: 0.5px solid var(--rule);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .comparison-table th {
+    background: var(--surface);
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--mono);
+    color: var(--ink-3);
+    border-bottom: 0.5px solid var(--rule);
+    letter-spacing: 0.05em;
+  }
+  .comparison-table td {
+    padding: 12px 16px;
+    color: var(--ink-2);
+    border-bottom: 0.5px solid var(--rule);
+    vertical-align: top;
+    line-height: 1.55;
+  }
+  .comparison-table tr:last-child td { border-bottom: none; }
+  .comparison-table tr:hover td { background: var(--surface); }
+  .badge-yes { display: inline-block; background: var(--green-light); color: var(--green); font-family: var(--mono); font-size: 10.5px; padding: 2px 8px; border-radius: 4px; }
+  .badge-no { display: inline-block; background: var(--red-light); color: var(--red); font-family: var(--mono); font-size: 10.5px; padding: 2px 8px; border-radius: 4px; }
+  .badge-partial { display: inline-block; background: var(--amber-light); color: var(--amber); font-family: var(--mono); font-size: 10.5px; padding: 2px 8px; border-radius: 4px; }
+
+  /* ── TWO COL (pros/cons) ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+  .adv-item {
+    display: flex; gap: 12px; padding: 16px;
+    background: var(--green-light);
+    border: 0.5px solid rgba(26,92,58,0.15);
+    border-radius: 10px; align-items: flex-start;
+  }
+  .lim-item {
+    display: flex; gap: 12px; padding: 16px;
+    background: var(--amber-light);
+    border: 0.5px solid rgba(107,62,13,0.15);
+    border-radius: 10px; align-items: flex-start;
+  }
+  .adv-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; margin-top: 7px; }
+  .lim-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--amber); flex-shrink: 0; margin-top: 7px; }
+  .adv-item h4, .lim-item h4 { font-size: 13.5px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+  .adv-item .simple-role { font-size: 11.5px; color: var(--green); font-family: var(--mono); margin-bottom: 4px; display: block; }
+  .lim-item .simple-role { font-size: 11.5px; color: var(--amber); font-family: var(--mono); margin-bottom: 4px; display: block; }
+  .adv-item p, .lim-item p { font-size: 13px; color: var(--ink-3); margin: 0; line-height: 1.5; }
+
+  /* ── CALLOUT ── */
+  .callout {
+    margin: 28px 0;
+    padding: 20px 24px;
+    border-left: 3px solid var(--accent);
+    background: var(--accent-light);
+    border-radius: 0 8px 8px 0;
+  }
+  .callout p { font-size: 14.5px; color: var(--accent); margin: 0; line-height: 1.6; font-style: italic; }
+
+  .warn-callout {
+    margin: 20px 0;
+    padding: 16px 20px;
+    border-left: 3px solid #b85c1a;
+    background: var(--amber-light);
+    border-radius: 0 8px 8px 0;
+  }
+  .warn-callout p { font-size: 13.5px; color: var(--amber); margin: 0; line-height: 1.6; }
+  .warn-callout strong { font-size: 11px; font-family: var(--mono); letter-spacing: 0.08em; display: block; margin-bottom: 4px; color: #b85c1a; text-transform: uppercase; }
+
+  /* ── STACK CHIPS ── */
+  .stack-section { margin-top: 24px; display: flex; flex-direction: column; gap: 16px; }
+  .stack-group-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; color: var(--ink-4); text-transform: uppercase; margin-bottom: 8px; }
+  .stack-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font-family: var(--mono); font-size: 12.5px; padding: 5px 12px; border-radius: 6px; background: var(--surface); border: 0.5px solid var(--rule); color: var(--ink-2); }
+  .chip.accent { background: var(--accent-light); border-color: rgba(26,58,107,0.2); color: var(--accent); }
+
+  /* ── APP ROW (arch steps) ── */
+  .app-list { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+  .app-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    border: 0.5px solid var(--rule);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .app-domain {
+    background: var(--surface);
+    padding: 14px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-2);
+    border-right: 0.5px solid var(--rule);
+    display: flex;
+    align-items: center;
+  }
+  .app-desc {
+    padding: 14px 18px;
+    font-size: 13.5px;
+    color: var(--ink-3);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+  }
+  .app-simple { font-size: 12px; font-family: var(--mono); color: var(--accent-mid); }
+
+  /* ── RAG TYPES / feature cards ── */
+  .rag-types { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+  .rag-type-card { border: 0.5px solid var(--rule); border-radius: 10px; padding: 20px; background: var(--surface-2); }
+  .rag-type-badge { display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; padding: 3px 9px; border-radius: 4px; margin-bottom: 10px; }
+  .badge-core { background: var(--accent-light); color: var(--accent); }
+  .badge-async { background: var(--green-light); color: var(--green); }
+  .badge-security { background: var(--red-light); color: var(--red); }
+  .badge-prod { background: var(--amber-light); color: var(--amber); }
+  .rag-type-card h3 { font-size: 14.5px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .rag-type-card .simple-role { font-size: 12px; color: var(--ink-3); font-family: var(--mono); margin-bottom: 8px; display: block; }
+  .rag-type-card p { font-size: 13px; color: var(--ink-3); margin: 0; line-height: 1.55; }
+
+  /* ── FUTURE GRID ── */
+  .future-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 24px; }
+  .future-card { border: 0.5px solid var(--rule); border-radius: 10px; padding: 20px; background: var(--surface); }
+  .future-tag { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
+  .future-card h3 { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .future-card .simple-role { font-size: 12px; color: var(--ink-4); font-family: var(--mono); margin-bottom: 8px; display: block; }
+  .future-card p { font-size: 13px; color: var(--ink-3); margin: 0; line-height: 1.55; }
+
+  /* ── INLINE CODE ── */
+  code { font-family: var(--mono); font-size: 13px; background: var(--surface); border: 0.5px solid var(--rule); padding: 1px 6px; border-radius: 4px; color: var(--ink-2); }
+
+  /* ── FOOTER ── */
+  .doc-footer {
+    background: var(--surface);
+    border-top: 1px solid var(--rule);
+    padding: 32px 72px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .doc-footer p { font-size: 12px; color: var(--ink-4); margin: 0; }
+
+  /* ── ARCH DIAGRAM ── */
+  .arch-diagram {
+    margin: 24px 0;
+    border: 0.5px solid var(--rule);
+    border-radius: 10px;
+    background: var(--surface);
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .arch-node {
+    background: var(--surface-2);
+    border: 0.5px solid var(--rule);
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 13px;
+    font-family: var(--mono);
+    color: var(--ink-2);
+    text-align: center;
+    min-width: 200px;
+    position: relative;
+  }
+  .arch-node.highlight {
+    background: var(--accent-light);
+    border-color: rgba(26,58,107,0.25);
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .arch-node.green {
+    background: var(--green-light);
+    border-color: rgba(26,92,58,0.2);
+    color: var(--green);
+  }
+  .arch-arrow {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--ink-4);
+    line-height: 1;
+    padding: 4px 0;
+  }
+  .arch-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--ink-4);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  @media (max-width: 640px) {
+    .cover { padding: 48px 28px; }
+    .toc-wrap { padding: 36px 28px; }
+    .content { padding: 48px 24px 72px; }
+    .rag-types, .two-col, .future-grid { grid-template-columns: 1fr; }
+    .app-row { grid-template-columns: 1fr; }
+    .app-domain { border-right: none; border-bottom: 0.5px solid var(--rule); }
+    .doc-footer { padding: 24px 28px; flex-direction: column; gap: 8px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-label">Technical Reference Document · Backend Systems Engineering</div>
+  <h1>FastAPI Systems Engineering<br><em>Modern API Architecture, Async Backends &amp; Production Engineering</em></h1>
+  <p class="cover-sub">
+    A structured, in-depth engineering reference for developers, AI engineers, startup founders, and backend architects building scalable APIs with FastAPI, MongoDB, async Python, and modern production infrastructure.
+  </p>
+  <div class="cover-meta">
+    <div class="cover-meta-item"><strong>Audience</strong>Backend Engineers · AI Engineers · Startup Founders</div>
+    <div class="cover-meta-item"><strong>Level</strong>Intermediate → Advanced → Production</div>
+    <div class="cover-meta-item"><strong>Format</strong>Technical Reference Handbook</div>
+    <div class="cover-meta-item"><strong>Covers</strong>FastAPI · Async · MongoDB · JWT · WebSockets · Docker</div>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc-wrap">
+  <div class="toc-label">Contents</div>
+  <div class="toc-grid">
+    <a href="#s1" class="toc-item"><span class="toc-num">01</span> What is FastAPI?</a>
+    <a href="#s2" class="toc-item"><span class="toc-num">02</span> Installation &amp; Setup</a>
+    <a href="#s3" class="toc-item"><span class="toc-num">03</span> Core Architecture</a>
+    <a href="#s4" class="toc-item"><span class="toc-num">04</span> Routing &amp; Path Parameters</a>
+    <a href="#s5" class="toc-item"><span class="toc-num">05</span> Request Body &amp; Pydantic</a>
+    <a href="#s6" class="toc-item"><span class="toc-num">06</span> Dependency Injection</a>
+    <a href="#s7" class="toc-item"><span class="toc-num">07</span> Authentication &amp; JWT</a>
+    <a href="#s8" class="toc-item"><span class="toc-num">08</span> MongoDB Integration</a>
+    <a href="#s9" class="toc-item"><span class="toc-num">09</span> CRUD APIs with MongoDB</a>
+    <a href="#s10" class="toc-item"><span class="toc-num">10</span> Middleware &amp; Lifecycle</a>
+    <a href="#s11" class="toc-item"><span class="toc-num">11</span> WebSockets &amp; Realtime</a>
+    <a href="#s12" class="toc-item"><span class="toc-num">12</span> Background Tasks</a>
+    <a href="#s13" class="toc-item"><span class="toc-num">13</span> Error Handling</a>
+    <a href="#s14" class="toc-item"><span class="toc-num">14</span> Caching with Redis</a>
+    <a href="#s15" class="toc-item"><span class="toc-num">15</span> Rate Limiting</a>
+    <a href="#s16" class="toc-item"><span class="toc-num">16</span> API Versioning</a>
+    <a href="#s17" class="toc-item"><span class="toc-num">17</span> Testing</a>
+    <a href="#s18" class="toc-item"><span class="toc-num">18</span> Async Programming</a>
+    <a href="#s19" class="toc-item"><span class="toc-num">19</span> Docker Deployment</a>
+    <a href="#s20" class="toc-item"><span class="toc-num">20</span> Production Architecture</a>
+    <a href="#s21" class="toc-item"><span class="toc-num">21</span> Scaling FastAPI</a>
+    <a href="#s22" class="toc-item"><span class="toc-num">22</span> Best Practices</a>
+    <a href="#s23" class="toc-item"><span class="toc-num">23</span> Advanced Patterns</a>
+    <a href="#s24" class="toc-item"><span class="toc-num">24</span> Future of Python Backend</a>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content">
+
+  <!-- 01 WHAT IS FASTAPI -->
+  <section class="section" id="s1">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>What is FastAPI?</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>Imagine a highway with no traffic lights. Regular Python web servers stop at every intersection waiting for a car to pass. FastAPI builds highways where multiple cars move simultaneously — requests come in, get processed without waiting for each other, and responses fly back at full speed. It is the fastest Python web framework for building APIs, and it comes with automatic documentation built right in.</p>
+    </div>
+
+    <p>FastAPI is a modern, high-performance Python web framework for building RESTful and GraphQL APIs, based on standard Python type hints. Built by Sebastián Ramírez and released in 2018, it sits on top of <code>Starlette</code> (the ASGI toolkit) and <code>Pydantic</code> (the data validation engine), combining both into a single coherent development experience.</p>
+
+    <p>It is the dominant Python framework for AI-backend infrastructure, replacing Flask in greenfield production systems due to its native async support, automatic OpenAPI schema generation, and first-class Pydantic integration that eliminates entire categories of boilerplate validation code.</p>
+
+    <div class="callout">
+      <p>"FastAPI is not just fast in terms of runtime throughput — it is fast to develop with. Automatic docs, type-driven validation, and zero-config dependency injection compress weeks of backend work into days."</p>
+    </div>
+
+    <div class="component-grid">
+      <div class="component-card">
+        <div class="component-card-icon">
+          <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        <h3>ASGI-Native</h3>
+        <span class="simple-role">Non-blocking by design</span>
+        <p>Built on Starlette's ASGI core, every endpoint can be <code>async def</code> — handling thousands of concurrent connections without spawning extra threads or processes.</p>
+      </div>
+      <div class="component-card">
+        <div class="component-card-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <h3>Type-Driven Validation</h3>
+        <span class="simple-role">Declare types, get validation free</span>
+        <p>Python type annotations are not just documentation — FastAPI parses them at startup and uses Pydantic to validate every request body, query parameter, and path variable automatically.</p>
+      </div>
+      <div class="component-card">
+        <div class="component-card-icon">
+          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <h3>Auto Documentation</h3>
+        <span class="simple-role">Swagger UI generated for free</span>
+        <p>On every app start, FastAPI introspects routes and models to generate a live OpenAPI 3.0 spec, Swagger UI at <code>/docs</code>, and ReDoc at <code>/redoc</code> — with no extra configuration.</p>
+      </div>
+      <div class="component-card">
+        <div class="component-card-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        </div>
+        <h3>Dependency Injection</h3>
+        <span class="simple-role">Wiring handled by the framework</span>
+        <p>FastAPI's DI system resolves auth tokens, database sessions, config objects, and nested dependencies declaratively — no service locators, no manual wiring, no hidden global state.</p>
+      </div>
+      <div class="component-card">
+        <div class="component-card-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <h3>Pydantic v2 Core</h3>
+        <span class="simple-role">Rust-speed validation in Python</span>
+        <p>Pydantic v2 (used in FastAPI 0.100+) rewrites the validation core in Rust, providing 5–50x faster model instantiation and serialization compared to Pydantic v1 — directly improving request/response throughput.</p>
+      </div>
+      <div class="component-card">
+        <div class="component-card-icon">
+          <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <h3>Production Performance</h3>
+        <span class="simple-role">Benchmarks at the top of Python frameworks</span>
+        <p>In TechEmpower benchmarks, FastAPI consistently ranks among the top Python frameworks — within 2–3x of Go and Node.js performance for I/O-bound workloads, making it viable for high-traffic production APIs.</p>
+      </div>
+    </div>
+
+    <p style="margin-top:24px;">FastAPI positions itself against two legacy incumbents. Flask is minimal but synchronous-first, requiring extensions for everything from validation to async. Django REST Framework provides batteries but enforces Django's ORM-centric patterns and adds significant overhead for pure API services. FastAPI occupies the ideal middle ground: production features out of the box, async-first, no legacy baggage.</p>
+
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>FastAPI</th>
+          <th>Flask</th>
+          <th>Django REST</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Async-Native (ASGI)</td>
+          <td><span class="badge-yes">Yes</span></td>
+          <td><span class="badge-partial">Partial</span></td>
+          <td><span class="badge-partial">Partial</span></td>
+        </tr>
+        <tr>
+          <td>Auto OpenAPI / Swagger</td>
+          <td><span class="badge-yes">Built-in</span></td>
+          <td><span class="badge-no">Extension</span></td>
+          <td><span class="badge-no">Extension</span></td>
+        </tr>
+        <tr>
+          <td>Request Validation</td>
+          <td><span class="badge-yes">Pydantic (auto)</span></td>
+          <td><span class="badge-no">Manual</span></td>
+          <td><span class="badge-partial">Serializers</span></td>
+        </tr>
+        <tr>
+          <td>Dependency Injection</td>
+          <td><span class="badge-yes">Built-in</span></td>
+          <td><span class="badge-no">None</span></td>
+          <td><span class="badge-partial">Limited</span></td>
+        </tr>
+        <tr>
+          <td>WebSocket Support</td>
+          <td><span class="badge-yes">Native</span></td>
+          <td><span class="badge-no">Extension</span></td>
+          <td><span class="badge-no">Channels add-on</span></td>
+        </tr>
+        <tr>
+          <td>Type Safety</td>
+          <td><span class="badge-yes">Full</span></td>
+          <td><span class="badge-no">None</span></td>
+          <td><span class="badge-partial">Partial</span></td>
+        </tr>
+        <tr>
+          <td>Startup Time</td>
+          <td><span class="badge-yes">Fast</span></td>
+          <td><span class="badge-yes">Fast</span></td>
+          <td><span class="badge-partial">Moderate</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 02 INSTALLATION -->
+  <section class="section" id="s2">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>Installation &amp; Environment Setup</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>You need three things: Python 3.11+, FastAPI itself, and Uvicorn — the server that runs it. Think of FastAPI as the kitchen and Uvicorn as the restaurant building around it. One installs, the other runs.</p>
+    </div>
+
+    <p>FastAPI requires Python 3.8+ (3.11+ recommended for production). The minimal viable install is two packages. Production systems expand this to a curated set of async-compatible dependencies covering database access, authentication, caching, and instrumentation.</p>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">Minimal installation</span>
+        <span class="code-lang">BASH</span>
+      </div>
+      <pre><span class="cm"># Create isolated virtual environment</span>
+python -m venv .venv &amp;&amp; source .venv/bin/activate
+
+<span class="cm"># Core: FastAPI + Uvicorn ASGI server</span>
+pip install <span class="str">"fastapi[standard]"</span> uvicorn
+
+<span class="cm"># uvicorn[standard] adds: uvloop, httptools, websockets</span>
+pip install <span class="str">"uvicorn[standard]"</span></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">Production requirements.txt</span>
+        <span class="code-lang">REQUIREMENTS</span>
+      </div>
+      <pre>fastapi[standard]>=0.115.0
+uvicorn[standard]>=0.30.0
+motor>=3.4.0               <span class="cm"># async MongoDB driver</span>
+pydantic[email]>=2.7.0
+python-jose[cryptography]  <span class="cm"># JWT encoding/decoding</span>
+passlib[bcrypt]            <span class="cm"># password hashing</span>
+redis[asyncio]>=5.0.0      <span class="cm"># async Redis client</span>
+httpx>=0.27.0              <span class="cm"># async HTTP client + testing</span>
+pytest-asyncio>=0.23.0
+python-dotenv>=1.0.0</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">Recommended project structure</span>
+        <span class="code-lang">TREE</span>
+      </div>
+      <pre>project/
+├── app/
+│   ├── main.py            <span class="cm"># FastAPI app entry point</span>
+│   ├── config.py          <span class="cm"># Settings via pydantic-settings</span>
+│   ├── database.py        <span class="cm"># MongoDB motor connection</span>
+│   ├── models/            <span class="cm"># Pydantic schemas</span>
+│   ├── routes/            <span class="cm"># APIRouter modules</span>
+│   ├── services/          <span class="cm"># Business logic layer</span>
+│   ├── middleware/        <span class="cm"># Custom ASGI middleware</span>
+│   └── utils/             <span class="cm"># Auth, hashing, helpers</span>
+├── tests/
+├── .env
+├── Dockerfile
+└── docker-compose.yml</pre>
+    </div>
+  </section>
+
+  <!-- 03 CORE ARCHITECTURE -->
+  <section class="section" id="s3">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>Core Architecture &amp; ASGI Internals</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>Old web servers handle one customer at a time — they take your order, walk to the kitchen, wait for the food, bring it back, then serve the next customer. Async servers are like waiters that take ten orders simultaneously, drop them all in the kitchen, and pick up whatever is ready first. ASGI is the protocol that makes this possible in Python.</p>
+    </div>
+
+    <p>FastAPI's performance stems from its ASGI (Asynchronous Server Gateway Interface) foundation. ASGI replaced WSGI as Python's web server standard, adding native support for long-lived connections, WebSockets, and non-blocking I/O through Python's <code>asyncio</code> event loop.</p>
+
+    <div class="arch-diagram">
+      <div class="arch-label">ASGI Request Lifecycle</div>
+      <div class="arch-node highlight">Client HTTP Request</div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-node">Uvicorn (ASGI Server) — libuv event loop</div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-node">Starlette Middleware Stack</div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-node">FastAPI Router — path matching</div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-node">Dependency Injection resolution</div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-node">Pydantic request validation</div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-node highlight">Route handler (async def)</div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-node">Pydantic response serialization</div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-node green">HTTP Response → Client</div>
+    </div>
+
+    <p>The event loop is the beating heart of async Python. A single-threaded event loop can juggle thousands of concurrent I/O-bound operations — database queries, HTTP calls, file reads — by suspending at <code>await</code> points and resuming when data is ready. CPU-bound tasks still block the loop and should be offloaded to <code>asyncio.run_in_executor</code> or a process pool.</p>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">Sync vs Async — critical behavioral difference</span>
+        <span class="code-lang">PYTHON</span>
+      </div>
+      <pre><span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI
+<span class="kw">import</span> asyncio, time
+
+app = FastAPI()
+
+<span class="cm"># SYNC: blocks the entire event loop for 2 seconds</span>
+<span class="cm"># 100 concurrent requests → 200 seconds total wait</span>
+<span class="dec">@app.get</span>(<span class="str">"/sync"</span>)
+<span class="kw">def</span> <span class="fn">sync_endpoint</span>():
+    time.sleep(<span class="num">2</span>)        <span class="cm"># BLOCKS — entire server freezes</span>
+    <span class="kw">return</span> {<span class="str">"status"</span>: <span class="str">"done"</span>}
+
+<span class="cm"># ASYNC: yields control during await</span>
+<span class="cm"># 100 concurrent requests → ~2 seconds total wait</span>
+<span class="dec">@app.get</span>(<span class="str">"/async"</span>)
+<span class="kw">async def</span> <span class="fn">async_endpoint</span>():
+    <span class="kw">await</span> asyncio.sleep(<span class="num">2</span>)  <span class="cm"># yields — other requests proceed</span>
+    <span class="kw">return</span> {<span class="str">"status"</span>: <span class="str">"done"</span>}</pre>
+    </div>
+
+    <div class="warn-callout">
+      <strong>Production Note</strong>
+      <p>Never call blocking I/O (requests, pymongo, time.sleep, open()) inside <code>async def</code> endpoints. It blocks the entire event loop. Use <code>motor</code> for MongoDB, <code>httpx</code> for HTTP calls, and <code>aiofiles</code> for file I/O — all of which are non-blocking.</p>
+    </div>
+  </section>
+
+  <!-- 04 ROUTING -->
+  <section class="section" id="s4">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>Routing, Path Parameters &amp; Query Parameters</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>Routing is just the address system of your API. <code>/users/42</code> means "give me user number 42" — that <code>42</code> is a path parameter. <code>/users?role=admin&amp;page=2</code> is filtering: those are query parameters. FastAPI reads your function signature and extracts both automatically from the URL.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">Complete routing patterns — GET, POST, PUT, PATCH, DELETE</span>
+        <span class="code-lang">PYTHON</span>
+      </div>
+      <pre><span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI, APIRouter, Path, Query, HTTPException
+<span class="kw">from</span> typing <span class="kw">import</span> Optional
+
+router = APIRouter(prefix=<span class="str">"/users"</span>, tags=[<span class="str">"Users"</span>])
+
+<span class="cm"># GET — retrieve single resource by ID</span>
+<span class="dec">@router.get</span>(<span class="str">"/{user_id}"</span>)
+<span class="kw">async def</span> <span class="fn">get_user</span>(
+    user_id: str = Path(..., description=<span class="str">"MongoDB ObjectId"</span>),
+):
+    <span class="kw">return</span> {<span class="str">"id"</span>: user_id}
+
+<span class="cm"># GET — list with query filters + pagination</span>
+<span class="dec">@router.get</span>(<span class="str">"/"</span>)
+<span class="kw">async def</span> <span class="fn">list_users</span>(
+    role: Optional[str] = Query(<span class="kw">None</span>, description=<span class="str">"Filter by role"</span>),
+    page: int = Query(<span class="num">1</span>, ge=<span class="num">1</span>),
+    limit: int = Query(<span class="num">20</span>, le=<span class="num">100</span>),
+):
+    skip = (page - <span class="num">1</span>) * limit
+    <span class="kw">return</span> {<span class="str">"page"</span>: page, <span class="str">"limit"</span>: limit, <span class="str">"skip"</span>: skip}
+
+<span class="cm"># POST — create resource</span>
+<span class="dec">@router.post</span>(<span class="str">"/"</span>, status_code=<span class="num">201</span>)
+<span class="kw">async def</span> <span class="fn">create_user</span>(payload: <span class="tp">UserCreate</span>):
+    <span class="kw">return</span> {<span class="str">"created"</span>: payload.email}
+
+<span class="cm"># PUT — full replacement</span>
+<span class="dec">@router.put</span>(<span class="str">"/{user_id}"</span>)
+<span class="kw">async def</span> <span class="fn">replace_user</span>(user_id: str, payload: <span class="tp">UserUpdate</span>):
+    <span class="kw">return</span> {<span class="str">"updated"</span>: user_id}
+
+<span class="cm"># PATCH — partial update</span>
+<span class="dec">@router.patch</span>(<span class="str">"/{user_id}"</span>)
+<span class="kw">async def</span> <span class="fn">patch_user</span>(user_id: str, payload: <span class="tp">UserPatch</span>):
+    data = payload.model_dump(exclude_unset=<span class="kw">True</span>)  <span class="cm"># only provided fields</span>
+    <span class="kw">return</span> {<span class="str">"patched"</span>: user_id, <span class="str">"fields"</span>: list(data.keys())}
+
+<span class="cm"># DELETE</span>
+<span class="dec">@router.delete</span>(<span class="str">"/{user_id}"</span>, status_code=<span class="num">204</span>)
+<span class="kw">async def</span> <span class="fn">delete_user</span>(user_id: str):
+    <span class="kw">return</span> <span class="kw">None</span>  <span class="cm"># 204 No Content returns no body</span></pre>
+    </div>
+
+    <p>Use <code>APIRouter</code> to modularize routes by domain — one router per resource type. Register routers on the app at startup, applying shared prefixes and tags. This keeps the main <code>app</code> instance clean and each domain file independently testable.</p>
+  </section>
+
+  <!-- 05 REQUEST BODY & PYDANTIC -->
+  <section class="section" id="s5">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2>Request Body, Pydantic &amp; Data Validation</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>Pydantic is a strict contract for your data. You declare what shape an object should be — its fields, types, and constraints — and Pydantic rejects anything that doesn't match before your code ever runs. Think of it as a bouncer at the API door: bad data never gets past the entrance.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">Production Pydantic models — User domain</span>
+        <span class="code-lang">PYTHON</span>
+      </div>
+      <pre><span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel, EmailStr, Field, field_validator
+<span class="kw">from</span> typing <span class="kw">import</span> Optional
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+<span class="kw">import</span> re
+
+<span class="kw">class</span> <span class="tp">UserCreate</span>(BaseModel):
+    email: <span class="tp">EmailStr</span>
+    username: str = Field(..., min_length=<span class="num">3</span>, max_length=<span class="num">50</span>, pattern=<span class="str">r"^[a-zA-Z0-9_-]+$"</span>)
+    password: str = Field(..., min_length=<span class="num">8</span>)
+    full_name: Optional[str] = Field(<span class="kw">None</span>, max_length=<span class="num">100</span>)
+
+    <span class="dec">@field_validator</span>(<span class="str">"password"</span>)
+    <span class="dec">@classmethod</span>
+    <span class="kw">def</span> <span class="fn">validate_password_strength</span>(cls, v: str) -> str:
+        <span class="kw">if not</span> re.search(<span class="str">r"[A-Z]"</span>, v):
+            <span class="kw">raise</span> ValueError(<span class="str">"Password must contain an uppercase letter"</span>)
+        <span class="kw">if not</span> re.search(<span class="str">r"\d"</span>, v):
+            <span class="kw">raise</span> ValueError(<span class="str">"Password must contain a digit"</span>)
+        <span class="kw">return</span> v
+
+<span class="kw">class</span> <span class="tp">UserResponse</span>(BaseModel):
+    <span class="cm"># Never expose: password_hash, internal_flags</span>
+    id: str
+    email: <span class="tp">EmailStr</span>
+    username: str
+    full_name: Optional[str]
+    created_at: <span class="tp">datetime</span>
+
+<span class="kw">class</span> <span class="tp">UserPatch</span>(BaseModel):
+    <span class="cm"># All fields optional for PATCH semantics</span>
+    full_name: Optional[str] = <span class="kw">None</span>
+    username: Optional[str] = <span class="kw">None</span></pre>
+    </div>
+
+    <p>A critical production pattern: always define separate <code>Create</code>, <code>Response</code>, and <code>Update</code> models per entity. The <code>Create</code> model accepts raw input including passwords. The <code>Response</code> model explicitly whitelists fields returned to clients — never exposing password hashes or internal fields. Using <code>model_dump(exclude_unset=True)</code> on <code>PATCH</code> payloads ensures only explicitly provided fields get written to the database.</p>
+  </section>
+
+  <!-- 06 DEPENDENCY INJECTION -->
+  <section class="section" id="s6">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2>Dependency Injection System</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>Instead of every function going out to get its own tools — opening its own database connection, decoding its own JWT token — FastAPI hands them pre-assembled. You declare what your function needs, and FastAPI delivers it. Shared resources get created once and passed to whoever needs them. No global variables, no tight coupling, no repetition.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">Dependency graph — database session + authenticated user</span>
+        <span class="code-lang">PYTHON</span>
+      </div>
+      <pre><span class="kw">from</span> fastapi <span class="kw">import</span> Depends, HTTPException, status
+<span class="kw">from</span> motor.motor_asyncio <span class="kw">import</span> AsyncIOMotorDatabase
+<span class="kw">from</span> app.database <span class="kw">import</span> get_database
+<span class="kw">from</span> app.utils.auth <span class="kw">import</span> decode_access_token
+
+<span class="cm"># Layer 1: database session injected into every route that needs it</span>
+<span class="kw">async def</span> <span class="fn">get_db</span>() -> <span class="tp">AsyncIOMotorDatabase</span>:
+    <span class="kw">return</span> get_database()  <span class="cm"># returns shared Motor client</span>
+
+<span class="cm"># Layer 2: auth — decodes JWT, returns user_id or raises 401</span>
+<span class="kw">async def</span> <span class="fn">get_current_user</span>(
+    token: str = Depends(oauth2_scheme),
+    db: <span class="tp">AsyncIOMotorDatabase</span> = Depends(get_db),
+) -> dict:
+    payload = decode_access_token(token)  <span class="cm"># raises if invalid</span>
+    user = <span class="kw">await</span> db.users.find_one({<span class="str">"_id"</span>: payload[<span class="str">"sub"</span>]})
+    <span class="kw">if not</span> user:
+        <span class="kw">raise</span> HTTPException(status_code=<span class="num">401</span>, detail=<span class="str">"User not found"</span>)
+    <span class="kw">return</span> user
+
+<span class="cm"># Layer 3: admin check — depends on auth</span>
+<span class="kw">async def</span> <span class="fn">require_admin</span>(current_user: dict = Depends(get_current_user)):
+    <span class="kw">if</span> current_user.get(<span class="str">"role"</span>) != <span class="str">"admin"</span>:
+        <span class="kw">raise</span> HTTPException(status_code=<span class="num">403</span>, detail=<span class="str">"Admin access required"</span>)
+    <span class="kw">return</span> current_user
+
+<span class="cm"># Usage — clean, composable, testable</span>
+<span class="dec">@router.delete</span>(<span class="str">"/users/{user_id}"</span>)
+<span class="kw">async def</span> <span class="fn">admin_delete_user</span>(
+    user_id: str,
+    admin: dict = Depends(require_admin),   <span class="cm"># pulls in auth + db</span>
+    db: <span class="tp">AsyncIOMotorDatabase</span> = Depends(get_db),
+):
+    <span class="kw">await</span> db.users.delete_one({<span class="str">"_id"</span>: user_id})
+    <span class="kw">return</span> {<span class="str">"deleted"</span>: user_id}</pre>
+    </div>
+
+    <p>Dependencies are cached within a request by default: if three route functions in a single request each declare <code>Depends(get_db)</code>, FastAPI calls <code>get_db()</code> once and reuses the result. This makes connection pooling predictable and eliminates duplicate work within a single request-response cycle.</p>
+  </section>
+
+  <!-- 07 AUTH & JWT -->
+  <section class="section" id="s7">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <h2>Authentication &amp; JWT Security</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>JWT is like a signed stamp on a wristband at a concert. The venue (your server) stamps it once at login. Every time you enter a different area (hit an endpoint), bouncers check the stamp — without calling the central desk. The stamp cannot be forged because only the venue knows the secret ink. No database lookup needed to verify who you are on every request.</p>
+    </div>
+
+    <p>JSON Web Tokens (JWTs) are the standard stateless authentication mechanism for REST APIs. A JWT encodes a payload (user ID, roles, expiration) into a base64 string, signed with a server-held secret via HMAC-SHA256 or RS256. Verification requires only the secret — not a database roundtrip — making JWT validation extremely fast and horizontally scalable.</p>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">Full JWT authentication implementation</span>
+        <span class="code-lang">PYTHON</span>
+      </div>
+      <pre><span class="kw">from</span> jose <span class="kw">import</span> JWTError, jwt
+<span class="kw">from</span> passlib.context <span class="kw">import</span> CryptContext
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime, timedelta, timezone
+<span class="kw">from</span> fastapi.security <span class="kw">import</span> OAuth2PasswordBearer, OAuth2PasswordRequestForm
+
+SECRET_KEY = <span class="str">"use-a-256-bit-random-secret-from-env"</span>
+ALGORITHM = <span class="str">"HS256"</span>
+ACCESS_EXPIRE_MINUTES = <span class="num">30</span>
+REFRESH_EXPIRE_DAYS = <span class="num">7</span>
+
+pwd_ctx = CryptContext(schemes=[<span class="str">"bcrypt"</span>], deprecated=<span class="str">"auto"</span>)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=<span class="str">"auth/login"</span>)
+
+<span class="kw">def</span> <span class="fn">hash_password</span>(plain: str) -> str:
+    <span class="kw">return</span> pwd_ctx.hash(plain)
+
+<span class="kw">def</span> <span class="fn">verify_password</span>(plain: str, hashed: str) -> bool:
+    <span class="kw">return</span> pwd_ctx.verify(plain, hashed)
+
+<span class="kw">def</span> <span class="fn">create_access_token</span>(user_id: str, role: str) -> str:
+    payload = {
+        <span class="str">"sub"</span>: user_id,
+        <span class="str">"role"</span>: role,
+        <span class="str">"exp"</span>: datetime.now(timezone.utc) + timedelta(minutes=ACCESS_EXPIRE_MINUTES),
+        <span class="str">"type"</span>: <span class="str">"access"</span>,
+    }
+    <span class="kw">return</span> jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+<span class="kw">def</span> <span class="fn">decode_access_token</span>(token: str) -> dict:
+    <span class="kw">try</span>:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        <span class="kw">if</span> payload.get(<span class="str">"type"</span>) != <span class="str">"access"</span>:
+            <span class="kw">raise</span> HTTPException(status_code=<span class="num">401</span>, detail=<span class="str">"Invalid token type"</span>)
+        <span class="kw">return</span> payload
+    <span class="kw">except</span> JWTError:
+        <span class="kw">raise</span> HTTPException(status_code=<span class="num">401</span>, detail=<span class="str">"Invalid or expired token"</span>)
+
+<span class="cm"># Login endpoint</span>
+<span class="dec">@router.post</span>(<span class="str">"/login"</span>)
+<span class="kw">async def</span> <span class="fn">login</span>(
+    form: OAuth2PasswordRequestForm = Depends(),
+    db = Depends(get_db),
+):
+    user = <span class="kw">await</span> db.users.find_one({<span class="str">"email"</span>: form.username})
+    <span class="kw">if not</span> user <span class="kw">or not</span> verify_password(form.password, user[<span class="str">"password_hash"</span>]):
+        <span class="kw">raise</span> HTTPException(status_code=<span class="num">401</span>, detail=<span class="str">"Invalid credentials"</span>)
+    token = create_access_token(str(user[<span class="str">"_id"</span>]), user.get(<span class="str">"role"</span>, <span class="str">"user"</span>))
+    <span class="kw">return</span> {<span class="str">"access_token"</span>: token, <span class="str">"token_type"</span>: <span class="str">"bearer"</span>}</pre>
+    </div>
+
+    <div class="warn-callout">
+      <strong>Security Critical</strong>
+      <p>Never store <code>SECRET_KEY</code> in code. Load it from environment variables via <code>pydantic-settings</code>. For production systems handling sensitive data, rotate to RS256 (asymmetric signing) and implement refresh token rotation with a Redis-backed revocation list.</p>
+    </div>
+  </section>
+
+  <!-- 08 MONGODB -->
+  <section class="section" id="s8">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <h2>MongoDB Integration — Motor Async Driver</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>MongoDB stores data as JSON-like documents instead of rigid table rows. Think of it as a filing cabinet where each folder can hold any kind of paper — some with 3 fields, others with 30 — and you can search across all of them simultaneously. Motor is the async version of the MongoDB driver, meaning queries don't freeze your server while they wait for the database to respond.</p>
+    </div>
+
+    <p>Motor is the official asynchronous Python MongoDB driver, wrapping PyMongo with asyncio-native coroutine support. All database operations become <code>await</code>-able, integrating natively into FastAPI's async event loop without thread pool overhead. MongoDB Atlas provides a managed cluster with built-in connection pooling, vector search, and global distribution.</p>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">database.py — Motor connection with connection pooling</span>
+        <span class="code-lang">PYTHON</span>
+      </div>
+      <pre><span class="kw">from</span> motor.motor_asyncio <span class="kw">import</span> AsyncIOMotorClient, AsyncIOMotorDatabase
+<span class="kw">from</span> pydantic_settings <span class="kw">import</span> BaseSettings
+<span class="kw">from</span> functools <span class="kw">import</span> lru_cache
+
+<span class="kw">class</span> <span class="tp">Settings</span>(BaseSettings):
+    MONGODB_URI: str = <span class="str">"mongodb://localhost:27017"</span>
+    DB_NAME: str = <span class="str">"myapp"</span>
+    <span class="cm"># Connection pool: min 5, max 50 connections</span>
+    MONGO_MIN_POOL: int = <span class="num">5</span>
+    MONGO_MAX_POOL: int = <span class="num">50</span>
+
+    <span class="kw">class</span> <span class="tp">Config</span>:
+        env_file = <span class="str">".env"</span>
+
+<span class="dec">@lru_cache</span>
+<span class="kw">def</span> <span class="fn">get_settings</span>() -> <span class="tp">Settings</span>:
+    <span class="kw">return</span> Settings()
+
+_client: AsyncIOMotorClient | <span class="kw">None</span> = <span class="kw">None</span>
+
+<span class="kw">async def</span> <span class="fn">connect_db</span>():
+    <span class="kw">global</span> _client
+    cfg = get_settings()
+    _client = AsyncIOMotorClient(
+        cfg.MONGODB_URI,
+        minPoolSize=cfg.MONGO_MIN_POOL,
+        maxPoolSize=cfg.MONGO_MAX_POOL,
+        serverSelectionTimeoutMS=<span class="num">5000</span>,
+    )
+    <span class="cm"># Verify connection on startup</span>
+    <span class="kw">await</span> _client.admin.command(<span class="str">"ping"</span>)
+
+<span class="kw">async def</span> <span class="fn">close_db</span>():
+    <span class="kw">if</span> _client:
+        _client.close()
+
+<span class="kw">def</span> <span class="fn">get_database</span>() -> <span class="tp">AsyncIOMotorDatabase</span>:
+    <span class="kw">return</span> _client[get_settings().DB_NAME]
+
+<span class="cm"># Register lifecycle hooks in main.py</span>
+<span class="dec">@app.on_event</span>(<span class="str">"startup"</span>)
+<span class="kw">async def</span> <span class="fn">startup</span>():
+    <span class="kw">await</span> connect_db()
+
+<span class="dec">@app.on_event</span>(<span class="str">"shutdown"</span>)
+<span class="kw">async def</span> <span class="fn">shutdown</span>():
+    <span class="kw">await</span> close_db()</pre>
+    </div>
+
+    <p>MongoDB's document model maps naturally to Pydantic models and JSON APIs. The critical data type to handle correctly is <code>ObjectId</code> — MongoDB's primary key type. It is a BSON type that doesn't serialize to JSON automatically. The production pattern wraps it to return string representations in API responses.</p>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">ObjectId handling — BSON to JSON bridge</span>
+        <span class="code-lang">PYTHON</span>
+      </div>
+      <pre><span class="kw">from</span> bson <span class="kw">import</span> ObjectId
+<span class="kw">from</span> pydantic <span class="kw">import</span> field_serializer, model_validator
+<span class="kw">from</span> typing <span class="kw">import</span> Any
+
+<span class="kw">def</span> <span class="fn">serialize_doc</span>(doc: dict | <span class="kw">None</span>) -> dict | <span class="kw">None</span>:
+    <span class="str">"""Convert MongoDB document _id to string id."""</span>
+    <span class="kw">if</span> doc <span class="kw">is None</span>:
+        <span class="kw">return None</span>
+    doc[<span class="str">"id"</span>] = str(doc.pop(<span class="str">"_id"</span>))
+    <span class="kw">return</span> doc
+
+<span class="cm"># Pydantic model with custom ObjectId field</span>
+<span class="kw">class</span> <span class="tp">PyObjectId</span>(str):
+    <span class="dec">@classmethod</span>
+    <span class="kw">def</span> <span class="fn">__get_validators__</span>(cls):
+        <span class="kw">yield</span> cls.validate
+
+    <span class="dec">@classmethod</span>
+    <span class="kw">def</span> <span class="fn">validate</span>(cls, v: Any) -> str:
+        <span class="kw">if isinstance</span>(v, ObjectId):
+            <span class="kw">return</span> str(v)
+        <span class="kw">if not</span> ObjectId.is_valid(v):
+            <span class="kw">raise</span> ValueError(<span class="str">"Invalid ObjectId"</span>)
+        <span class="kw">return</span> str(v)</pre>
+    </div>
+
+    <table class="comparison-table" style="margin-top:24px;">
+      <thead>
+        <tr>
+          <th>MongoDB Concept</th>
+          <th>SQL Equivalent</th>
+          <th>Python Type</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Database</td><td>Database</td><td><code>AsyncIOMotorDatabase</code></td></tr>
+        <tr><td>Collection</td><td>Table</td><td><code>AsyncIOMotorCollection</code></td></tr>
+        <tr><td>Document</td><td>Row</td><td><code>dict</code> / Pydantic model</td></tr>
+        <tr><td><code>_id: ObjectId</code></td><td>Primary Key (UUID)</td><td><code>bson.ObjectId</code> → <code>str</code></td></tr>
+        <tr><td>Index</td><td>Index</td><td><code>create_index()</code></td></tr>
+        <tr><td>Aggregation Pipeline</td><td>JOIN + GROUP BY</td><td><code>aggregate(pipeline)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 09 CRUD -->
+  <section class="section" id="s9">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <h2>CRUD APIs with MongoDB</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>CRUD is the backbone of every API: Create a record, Read it back, Update it, Delete it. With MongoDB and Motor, all four operations are single async function calls. The challenge is doing them correctly — handling missing documents, validating ObjectIds, and never leaking database errors to clients.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">Full async CRUD — production-grade user service</span>
+        <span class="code-lang">PYTHON</span>
+      </div>
+      <pre><span class="kw">from</span> fastapi <span class="kw">import</span> APIRouter, Depends, HTTPException
+<span class="kw">from</span> motor.motor_asyncio <span class="kw">import</span> AsyncIOMotorDatabase
+<span class="kw">from</span> bson <span class="kw">import</span> ObjectId
+
+router = APIRouter(prefix=<span class="str">"/users"</span>, tags=[<span class="str">"Users"</span>])
+
+<span class="cm"># CREATE</span>
+<span class="dec">@router.post</span>(<span class="str">"/"</span>, response_model=<span class="tp">UserResponse</span>, status_code=<span class="num">201</span>)
+<span class="kw">async def</span> <span class="fn">create_user</span>(payload: <span class="tp">UserCreate</span>, db = Depends(get_db)):
+    <span class="kw">if await</span> db.users.find_one({<span class="str">"email"</span>: payload.email}):
+        <span class="kw">raise</span> HTTPException(<span class="num">409</span>, <span class="str">"Email already registered"</span>)
+    doc = payload.model_dump()
+    doc[<span class="str">"password_hash"</span>] = hash_password(doc.pop(<span class="str">"password"</span>))
+    doc[<span class="str">"created_at"</span>] = datetime.now(timezone.utc)
+    result = <span class="kw">await</span> db.users.insert_one(doc)
+    created = <span class="kw">await</span> db.users.find_one({<span class="str">"_id"</span>: result.inserted_id})
+    <span class="kw">return</span> serialize_doc(created)
+
+<span class="cm"># READ (single)</span>
+<span class="dec">@router.get</span>(<span class="str">"/{user_id}"</span>, response_model=<span class="tp">UserResponse</span>)
+<span class="kw">async def</span> <span class="fn">get_user</span>(user_id: str, db = Depends(get_db)):
+    <span class="kw">if not</span> ObjectId.is_valid(user_id):
+        <span class="kw">raise</span> HTTPException(<span class="num">400</span>, <span class="str">"Invalid user ID format"</span>)
+    user = <span class="kw">await</span> db.users.find_one({<span class="str">"_id"</span>: ObjectId(user_id)})
+    <span class="kw">if not</span> user:
+        <span class="kw">raise</span> HTTPException(<span class="num">404</span>, <span class="str">"User not found"</span>)
+    <span class="kw">return</span> serialize_doc(user)
+
+<span class="cm"># READ (paginated list)</span>
+<span class="dec">@router.get</span>(<span class="str">"/"</span>, response_model=list[<span class="tp">UserResponse</span>])
+<span class="kw">async def</span> <span class="fn">list_users</span>(
+    page: int = <span class="num">1</span>, limit: int = <span class="num">20</span>, db = Depends(get_db)
+):
+    skip = (page - <span class="num">1</span>) * limit
+    cursor = db.users.find({}).skip(skip).limit(limit).sort(<span class="str">"created_at"</span>, -<span class="num">1</span>)
+    users = <span class="kw">await</span> cursor.to_list(length=limit)
+    <span class="kw">return</span> [serialize_doc(u) <span class="kw">for</span> u <span class="kw">in</span> users]
+
+<span class="cm"># UPDATE (partial)</span>
+<span class="dec">@router.patch</span>(<span class="str">"/{user_id}"</span>, response_model=<span class="tp">UserResponse</span>)
+<span class="kw">async def</span> <span class="fn">update_user</span>(
+    user_id: str, payload: <span class="tp">UserPatch</span>, db = Depends(get_db)
+):
+    updates = payload.model_dump(exclude_unset=<span class="kw">True</span>)
+    <span class="kw">if not</span> updates:
+        <span class="kw">raise</span> HTTPException(<span class="num">400</span>, <span class="str">"No fields to update"</span>)
+    result = <span class="kw">await</span> db.users.find_one_and_update(
+        {<span class="str">"_id"</span>: ObjectId(user_id)},
+        {<span class="str">"$set"</span>: updates},
+        return_document=<span class="kw">True</span>,
+    )
+    <span class="kw">if not</span> result:
+        <span class="kw">raise</span> HTTPException(<span class="num">404</span>, <span class="str">"User not found"</span>)
+    <span class="kw">return</span> serialize_doc(result)
+
+<span class="cm"># DELETE</span>
+<span class="dec">@router.delete</span>(<span class="str">"/{user_id}"</span>, status_code=<span class="num">204</span>)
+<span class="kw">async def</span> <span class="fn">delete_user</span>(
+    user_id: str,
+    db = Depends(get_db),
+    _: dict = Depends(require_admin),
+):
+    result = <span class="kw">await</span> db.users.delete_one({<span class="str">"_id"</span>: ObjectId(user_id)})
+    <span class="kw">if</span> result.deleted_count == <span class="num">0</span>:
+        <span class="kw">raise</span> HTTPException(<span class="num">404</span>, <span class="str">"User not found"</span>)</pre>
+    </div>
+  </section>
+
+  <!-- 10 MIDDLEWARE -->
+  <section class="section" id="s10">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <h2>Middleware &amp; Request Lifecycle</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>Middleware is a security checkpoint and logging booth that every request passes through before it reaches your code — and every response passes through on the way out. Add CORS rules, request IDs, response timing, and access logs in middleware once, and they apply to every single endpoint automatically.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">Production middleware stack — main.py</span>
+        <span class="code-lang">PYTHON</span>
+      </div>
+      <pre><span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI, Request
+<span class="kw">from</span> fastapi.middleware.cors <span class="kw">import</span> CORSMiddleware
+<span class="kw">from</span> starlette.middleware.base <span class="kw">import</span> BaseHTTPMiddleware
+<span class="kw">import</span> uuid, time, logging
+
+app = FastAPI(title=<span class="str">"My API"</span>, version=<span class="str">"1.0.0"</span>)
+
+<span class="cm"># 1. CORS — must be first in the stack</span>
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[<span class="str">"https://myapp.com"</span>],  <span class="cm"># never * in production</span>
+    allow_credentials=<span class="kw">True</span>,
+    allow_methods=[<span class="str">"*"</span>],
+    allow_headers=[<span class="str">"*"</span>],
+)
+
+<span class="cm"># 2. Request ID + timing middleware</span>
+<span class="kw">class</span> <span class="tp">RequestContextMiddleware</span>(BaseHTTPMiddleware):
+    <span class="kw">async def</span> <span class="fn">dispatch</span>(self, request: <span class="tp">Request</span>, call_next):
+        request_id = str(uuid.uuid4())
+        request.state.request_id = request_id
+        start = time.perf_counter()
+
+        response = <span class="kw">await</span> call_next(request)
+
+        duration_ms = (time.perf_counter() - start) * <span class="num">1000</span>
+        response.headers[<span class="str">"X-Request-ID"</span>] = request_id
+        response.headers[<span class="str">"X-Response-Time"</span>] = f<span class="str">"{duration_ms:.2f}ms"</span>
+
+        logging.info(
+            f<span class="str">"{request.method} {request.url.path} "</span>
+            f<span class="str">"{response.status_code} {duration_ms:.0f}ms [{request_id}]"</span>
+        )
+        <span class="kw">return</span> response
+
+app.add_middleware(RequestContextMiddleware)</pre>
+    </div>
+
+    <div class="pipeline">
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">IN</div>
+        <div class="pipeline-step-body">
+          <h4>Incoming Request</h4>
+          <span class="plain-english">HTTP request arrives at Uvicorn</span>
+          <p>Raw TCP connection accepted by the Uvicorn event loop, parsed into an ASGI scope, and forwarded up the middleware stack.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">MW</div>
+        <div class="pipeline-step-body">
+          <h4>Middleware Stack (descending)</h4>
+          <span class="plain-english">CORS → Request ID → Logging → Auth pre-check</span>
+          <p>Each middleware wraps the next via <code>await call_next(request)</code>. Middlewares execute in registration order on the way in, and in reverse on the way out.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">RT</div>
+        <div class="pipeline-step-body">
+          <h4>Router + Path Matching</h4>
+          <span class="plain-english">FastAPI matches the URL to a handler function</span>
+          <p>Starlette's routing tree matches the request method and path. Path parameters are extracted and type-coerced.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">DI</div>
+        <div class="pipeline-step-body">
+          <h4>Dependency Resolution</h4>
+          <span class="plain-english">DB session, auth token, config — all injected</span>
+          <p>FastAPI walks the dependency graph, resolving and caching all declared <code>Depends()</code> before calling the route function.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">FN</div>
+        <div class="pipeline-step-body">
+          <h4>Route Handler Execution</h4>
+          <span class="plain-english">Your business logic runs here</span>
+          <p>The <code>async def</code> handler runs. Any <code>await</code> calls yield control to the event loop, allowing other requests to proceed concurrently.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">OUT</div>
+        <div class="pipeline-step-body">
+          <h4>Pydantic Serialization → Response</h4>
+          <span class="plain-english">Return value validated, serialized, and sent to client</span>
+          <p>The return value is passed through the <code>response_model</code> serializer, converted to JSON, and streamed back through the middleware stack in reverse order before reaching the client.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 WEBSOCKETS -->
+  <section class="section" id="s11">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <h2>WebSockets &amp; Realtime Systems</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>HTTP is like sending letters — one question, one answer, connection closes. WebSockets are like a phone call — connection stays open, both sides can talk anytime. Use WebSockets for chat, live dashboards, multiplayer games, or any feature where the server needs to push data to the client without waiting for a request.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">WebSocket with connection manager — broadcast chat room</span>
+        <span class="code-lang">PYTHON</span>
+      </div>
+      <pre><span class="kw">from</span> fastapi <span class="kw">import</span> WebSocket, WebSocketDisconnect
+<span class="kw">from</span> typing <span class="kw">import</span> <span class="tp">Dict</span>
+
+<span class="kw">class</span> <span class="tp">ConnectionManager</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        <span class="cm"># room_id → set of active WebSocket connections</span>
+        self.rooms: <span class="tp">Dict</span>[str, set[<span class="tp">WebSocket</span>]] = {}
+
+    <span class="kw">async def</span> <span class="fn">connect</span>(self, ws: <span class="tp">WebSocket</span>, room: str):
+        <span class="kw">await</span> ws.accept()
+        self.rooms.setdefault(room, set()).add(ws)
+
+    <span class="kw">def</span> <span class="fn">disconnect</span>(self, ws: <span class="tp">WebSocket</span>, room: str):
+        self.rooms.get(room, set()).discard(ws)
+
+    <span class="kw">async def</span> <span class="fn">broadcast</span>(self, room: str, message: str, sender: <span class="tp">WebSocket</span>):
+        dead = set()
+        <span class="kw">for</span> ws <span class="kw">in</span> self.rooms.get(room, set()):
+            <span class="kw">if</span> ws <span class="kw">is</span> sender: <span class="kw">continue</span>
+            <span class="kw">try</span>:
+                <span class="kw">await</span> ws.send_text(message)
+            <span class="kw">except</span>:
+                dead.add(ws)
+        self.rooms[room] -= dead
+
+manager = <span class="tp">ConnectionManager</span>()
+
+<span class="dec">@app.websocket</span>(<span class="str">"/ws/{room_id}"</span>)
+<span class="kw">async def</span> <span class="fn">websocket_endpoint</span>(ws: <span class="tp">WebSocket</span>, room_id: str):
+    <span class="kw">await</span> manager.connect(ws, room_id)
+    <span class="kw">try</span>:
+        <span class="kw">while True</span>:
+            data = <span class="kw">await</span> ws.receive_text()
+            <span class="kw">await</span> manager.broadcast(room_id, data, sender=ws)
+    <span class="kw">except</span> WebSocketDisconnect:
+        manager.disconnect(ws, room_id)</pre>
+    </div>
+
+    <p>For production multi-server deployments, replace the in-memory <code>ConnectionManager</code> with a Redis Pub/Sub backend — each server publishes messages to a Redis channel, and all servers subscribe to forward them to their local WebSocket connections. This enables horizontal scaling of realtime features.</p>
+  </section>
+
+  <!-- 12 BACKGROUND TASKS -->
+  <section class="section" id="s12">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <h2>Background Tasks</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>When someone signs up, you want to respond instantly — not make them wait while you send a welcome email. Background tasks let you say "done!" immediately and do the slow work after the response is already on its way. For heavy jobs, use Celery with Redis as a proper task queue.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">FastAPI BackgroundTasks + Celery task queue</span>
+        <span class="code-lang">PYTHON</span>
+      </div>
+      <pre><span class="kw">from</span> fastapi <span class="kw">import</span> BackgroundTasks
+
+<span class="cm"># Built-in: runs after response is sent, in same process</span>
+<span class="kw">async def</span> <span class="fn">send_welcome_email</span>(email: str, username: str):
+    <span class="cm"># slow SMTP operation — doesn't block the client</span>
+    <span class="kw">await</span> email_client.send(to=email, template=<span class="str">"welcome"</span>, data={<span class="str">"name"</span>: username})
+
+<span class="dec">@router.post</span>(<span class="str">"/register"</span>, status_code=<span class="num">201</span>)
+<span class="kw">async def</span> <span class="fn">register</span>(payload: <span class="tp">UserCreate</span>, bg: <span class="tp">BackgroundTasks</span>, db = Depends(get_db)):
+    user = <span class="kw">await</span> create_user_in_db(db, payload)
+    <span class="cm"># Queue email AFTER response — user gets 201 immediately</span>
+    bg.add_task(send_welcome_email, payload.email, payload.username)
+    <span class="kw">return</span> serialize_doc(user)
+
+<span class="cm"># Production: Celery for heavy/scheduled jobs</span>
+<span class="kw">from</span> celery <span class="kw">import</span> Celery
+
+celery = Celery(<span class="str">"tasks"</span>, broker=<span class="str">"redis://localhost:6379/0"</span>)
+
+<span class="dec">@celery.task</span>
+<span class="kw">def</span> <span class="fn">process_export</span>(user_id: str, export_format: str):
+    <span class="cm"># runs in separate worker process — can take minutes</span>
+    data = generate_full_export(user_id, export_format)
+    upload_to_s3(data, f<span class="str">"exports/{user_id}.{export_format}"</span>)
+    notify_user_export_ready(user_id)</pre>
+    </div>
+  </section>
+
+  <!-- 13 ERROR HANDLING -->
+  <section class="section" id="s13">
+    <div class="section-header">
+      <span class="section-num">13</span>
+      <h2>Error Handling &amp; Exception Management</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>Good error handling means two things: clients always get a clean, consistent error shape — never a Python traceback — and your team always gets a detailed log. You control what the outside world sees and what your monitoring systems capture.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">Global exception handlers — consistent error envelope</span>
+        <span class="code-lang">PYTHON</span>
+      </div>
+      <pre><span class="kw">from</span> fastapi <span class="kw">import</span> Request
+<span class="kw">from</span> fastapi.responses <span class="kw">import</span> JSONResponse
+<span class="kw">from</span> fastapi.exceptions <span class="kw">import</span> RequestValidationError
+<span class="kw">from</span> starlette.exceptions <span class="kw">import</span> HTTPException
+
+<span class="cm"># Standardized error envelope for all responses</span>
+<span class="kw">def</span> <span class="fn">error_response</span>(status: int, code: str, message: str, detail=<span class="kw">None</span>):
+    <span class="kw">return</span> JSONResponse(
+        status_code=status,
+        content={
+            <span class="str">"error"</span>: {<span class="str">"code"</span>: code, <span class="str">"message"</span>: message, <span class="str">"detail"</span>: detail}
+        },
+    )
+
+<span class="dec">@app.exception_handler</span>(HTTPException)
+<span class="kw">async def</span> <span class="fn">http_handler</span>(request: <span class="tp">Request</span>, exc: <span class="tp">HTTPException</span>):
+    <span class="kw">return</span> error_response(exc.status_code, <span class="str">"HTTP_ERROR"</span>, exc.detail)
+
+<span class="dec">@app.exception_handler</span>(RequestValidationError)
+<span class="kw">async def</span> <span class="fn">validation_handler</span>(request: <span class="tp">Request</span>, exc: <span class="tp">RequestValidationError</span>):
+    errors = [
+        {<span class="str">"field"</span>: <span class="str">"."</span>.join(str(l) <span class="kw">for</span> l <span class="kw">in</span> e[<span class="str">"loc"</span>]), <span class="str">"msg"</span>: e[<span class="str">"msg"</span>]}
+        <span class="kw">for</span> e <span class="kw">in</span> exc.errors()
+    ]
+    <span class="kw">return</span> error_response(<span class="num">422</span>, <span class="str">"VALIDATION_ERROR"</span>, <span class="str">"Invalid request data"</span>, errors)
+
+<span class="dec">@app.exception_handler</span>(Exception)
+<span class="kw">async def</span> <span class="fn">generic_handler</span>(request: <span class="tp">Request</span>, exc: <span class="tp">Exception</span>):
+    logging.exception(<span class="str">"Unhandled error"</span>, exc_info=exc)  <span class="cm"># full traceback in logs</span>
+    <span class="kw">return</span> error_response(<span class="num">500</span>, <span class="str">"INTERNAL_ERROR"</span>, <span class="str">"An unexpected error occurred"</span>)</pre>
+    </div>
+  </section>
+
+  <!-- 14 REDIS CACHING -->
+  <section class="section" id="s14">
+    <div class="section-header">
+      <span class="section-num">14</span>
+      <h2>Caching with Redis</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>Caching is a photocopy machine for expensive answers. Instead of recalculating or re-querying the database every time someone asks the same question, you keep the last answer on a sticky note (Redis). Next time — answer from the sticky note. 1ms instead of 50ms.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">Async Redis cache decorator pattern</span>
+        <span class="code-lang">PYTHON</span>
+      </div>
+      <pre><span class="kw">import</span> redis.asyncio <span class="kw">as</span> aioredis
+<span class="kw">import</span> json
+<span class="kw">from</span> functools <span class="kw">import</span> wraps
+
+redis_client = aioredis.from_url(<span class="str">"redis://localhost:6379"</span>, decode_responses=<span class="kw">True</span>)
+
+<span class="kw">def</span> <span class="fn">cache</span>(ttl: int = <span class="num">300</span>, key_prefix: str = <span class="str">""</span>):
+    <span class="str">"""Async cache decorator with configurable TTL."""</span>
+    <span class="kw">def</span> <span class="fn">decorator</span>(func):
+        <span class="dec">@wraps</span>(func)
+        <span class="kw">async def</span> <span class="fn">wrapper</span>(*args, **kwargs):
+            cache_key = f<span class="str">"{key_prefix}:{func.__name__}:{args}:{kwargs}"</span>
+            cached = <span class="kw">await</span> redis_client.get(cache_key)
+            <span class="kw">if</span> cached:
+                <span class="kw">return</span> json.loads(cached)
+            result = <span class="kw">await</span> func(*args, **kwargs)
+            <span class="kw">await</span> redis_client.setex(cache_key, ttl, json.dumps(result, default=str))
+            <span class="kw">return</span> result
+        <span class="kw">return</span> wrapper
+    <span class="kw">return</span> decorator
+
+<span class="cm"># Usage — cache for 5 minutes</span>
+<span class="dec">@cache</span>(ttl=<span class="num">300</span>, key_prefix=<span class="str">"user"</span>)
+<span class="kw">async def</span> <span class="fn">get_user_profile</span>(user_id: str) -> dict:
+    <span class="kw">return await</span> db.users.find_one({<span class="str">"_id"</span>: ObjectId(user_id)})</pre>
+    </div>
+  </section>
+
+  <!-- 15-17 brief -->
+  <section class="section" id="s15">
+    <div class="section-header">
+      <span class="section-num">15</span>
+      <h2>Rate Limiting &amp; API Versioning</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>Rate limiting is a turnstile — it allows a maximum number of requests per user per minute, protecting your system from abuse and runaway clients. API versioning lets you ship breaking changes by routing <code>/v1</code> clients to old logic and <code>/v2</code> clients to new logic — without breaking anyone.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">Rate limiting middleware + API versioning pattern</span>
+        <span class="code-lang">PYTHON</span>
+      </div>
+      <pre><span class="cm"># Rate limiting with Redis sliding window</span>
+<span class="kw">from</span> fastapi <span class="kw">import</span> Request, HTTPException
+
+<span class="kw">async def</span> <span class="fn">rate_limit</span>(request: <span class="tp">Request</span>, limit: int = <span class="num">60</span>, window: int = <span class="num">60</span>):
+    key = f<span class="str">"rate:{request.client.host}:{request.url.path}"</span>
+    count = <span class="kw">await</span> redis_client.incr(key)
+    <span class="kw">if</span> count == <span class="num">1</span>:
+        <span class="kw">await</span> redis_client.expire(key, window)
+    <span class="kw">if</span> count > limit:
+        <span class="kw">raise</span> HTTPException(status_code=<span class="num">429</span>, detail=<span class="str">"Rate limit exceeded"</span>)
+
+<span class="cm"># API versioning via prefix routing</span>
+<span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI
+<span class="kw">from</span> app.routes.v1 <span class="kw">import</span> router <span class="kw">as</span> v1_router
+<span class="kw">from</span> app.routes.v2 <span class="kw">import</span> router <span class="kw">as</span> v2_router
+
+app = FastAPI()
+app.include_router(v1_router, prefix=<span class="str">"/v1"</span>)
+app.include_router(v2_router, prefix=<span class="str">"/v2"</span>)</pre>
+    </div>
+  </section>
+
+  <!-- 17 TESTING -->
+  <section class="section" id="s17">
+    <div class="section-header">
+      <span class="section-num">17</span>
+      <h2>API Testing with pytest + httpx</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>FastAPI's <code>TestClient</code> spins up the entire application in memory — no server needed. Write tests that send real HTTP requests and check real responses. For async endpoints, use <code>httpx.AsyncClient</code>. Tests run in milliseconds and catch regressions before they reach production.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">Async test suite — CRUD endpoint coverage</span>
+        <span class="code-lang">PYTHON</span>
+      </div>
+      <pre><span class="kw">import</span> pytest
+<span class="kw">from</span> httpx <span class="kw">import</span> AsyncClient, ASGITransport
+<span class="kw">from</span> app.main <span class="kw">import</span> app
+
+<span class="dec">@pytest.fixture</span>
+<span class="kw">async def</span> <span class="fn">client</span>():
+    <span class="kw">async with</span> AsyncClient(
+        transport=ASGITransport(app=app), base_url=<span class="str">"http://test"</span>
+    ) <span class="kw">as</span> ac:
+        <span class="kw">yield</span> ac
+
+<span class="dec">@pytest.mark.asyncio</span>
+<span class="kw">async def</span> <span class="fn">test_register_success</span>(client):
+    response = <span class="kw">await</span> client.post(<span class="str">"/users/"</span>, json={
+        <span class="str">"email"</span>: <span class="str">"test@example.com"</span>,
+        <span class="str">"username"</span>: <span class="str">"testuser"</span>,
+        <span class="str">"password"</span>: <span class="str">"SecurePass1"</span>,
+    })
+    <span class="kw">assert</span> response.status_code == <span class="num">201</span>
+    data = response.json()
+    <span class="kw">assert</span> data[<span class="str">"email"</span>] == <span class="str">"test@example.com"</span>
+    <span class="kw">assert</span> <span class="str">"password"</span> <span class="kw">not in</span> data  <span class="cm"># never leak credentials</span>
+
+<span class="dec">@pytest.mark.asyncio</span>
+<span class="kw">async def</span> <span class="fn">test_duplicate_email</span>(client):
+    payload = {<span class="str">"email"</span>: <span class="str">"dup@example.com"</span>, <span class="str">"username"</span>: <span class="str">"u1"</span>, <span class="str">"password"</span>: <span class="str">"Pass1234"</span>}
+    <span class="kw">await</span> client.post(<span class="str">"/users/"</span>, json=payload)
+    response = <span class="kw">await</span> client.post(<span class="str">"/users/"</span>, json=payload)
+    <span class="kw">assert</span> response.status_code == <span class="num">409</span></pre>
+    </div>
+  </section>
+
+  <!-- 19 DOCKER -->
+  <section class="section" id="s19">
+    <div class="section-header">
+      <span class="section-num">19</span>
+      <h2>Docker Deployment</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>Docker packages your API — code, Python version, all dependencies — into a sealed container that runs identically on your laptop, CI, and production server. No "works on my machine." One image, runs everywhere.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">Production multi-stage Dockerfile</span>
+        <span class="code-lang">DOCKERFILE</span>
+      </div>
+      <pre><span class="cm"># Stage 1: dependency builder</span>
+<span class="kw">FROM</span> python:<span class="num">3.12</span>-slim <span class="kw">AS</span> builder
+<span class="kw">WORKDIR</span> /build
+<span class="kw">COPY</span> requirements.txt .
+<span class="kw">RUN</span> pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+<span class="cm"># Stage 2: minimal runtime image</span>
+<span class="kw">FROM</span> python:<span class="num">3.12</span>-slim
+<span class="kw">WORKDIR</span> /app
+<span class="kw">COPY</span> --from=builder /install /usr/local
+<span class="kw">COPY</span> app/ ./app/
+
+<span class="cm"># Non-root user for security</span>
+<span class="kw">RUN</span> adduser --disabled-password --gecos <span class="str">""</span> appuser
+<span class="kw">USER</span> appuser
+
+<span class="kw">EXPOSE</span> <span class="num">8000</span>
+<span class="cm"># Production: Gunicorn manages Uvicorn workers</span>
+<span class="kw">CMD</span> [<span class="str">"gunicorn"</span>, <span class="str">"app.main:app"</span>,
+     <span class="str">"-k"</span>, <span class="str">"uvicorn.workers.UvicornWorker"</span>,
+     <span class="str">"-w"</span>, <span class="str">"4"</span>,
+     <span class="str">"-b"</span>, <span class="str">"0.0.0.0:8000"</span>,
+     <span class="str">"--access-logfile"</span>, <span class="str">"-"</span>]</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">docker-compose.yml — full local stack</span>
+        <span class="code-lang">YAML</span>
+      </div>
+      <pre>version: <span class="str">"3.9"</span>
+services:
+  api:
+    build: .
+    ports: [<span class="str">"8000:8000"</span>]
+    env_file: .env
+    depends_on: [mongodb, redis]
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:<span class="num">7.0</span>
+    volumes: [mongo_data:/data/db]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+
+  redis:
+    image: redis:<span class="num">7.2</span>-alpine
+    volumes: [redis_data:/data]
+    command: redis-server --appendonly yes
+
+volumes:
+  mongo_data:
+  redis_data:</pre>
+    </div>
+  </section>
+
+  <!-- 20 PRODUCTION ARCH -->
+  <section class="section" id="s20">
+    <div class="section-header">
+      <span class="section-num">20</span>
+      <h2>Production Architecture</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>A production system is layered defense and distributed load. Traffic flows from the internet through a load balancer that distributes it across multiple API instances, each of which checks Redis for cached answers before hitting MongoDB. Background workers handle slow tasks off the critical path. Every layer has redundancy.</p>
+    </div>
+
+    <div class="arch-diagram">
+      <div class="arch-label">Full Production Stack — Traffic Flow</div>
+      <div class="arch-node highlight">Client (Browser / Mobile / API Consumer)</div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-node">Cloudflare CDN / WAF — DDoS protection, TLS termination</div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-node">NGINX Load Balancer — upstream health checks, SSL</div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-node">Gunicorn Process Manager (4 workers per instance)</div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-node highlight">Uvicorn Worker × 4 → FastAPI Application</div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-node green">Redis (cache layer) ← hit or miss →  MongoDB Atlas (primary store)</div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-node">Celery Workers — email, exports, scheduled jobs</div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-node">Datadog / Sentry — observability, error tracking</div>
+    </div>
+
+    <p>The Gunicorn + Uvicorn combination is the production standard for FastAPI. Gunicorn manages worker processes and handles OS-level process supervision — restarting crashed workers, graceful reloads. Each worker is a <code>UvicornWorker</code> instance, running an async event loop. The recommended worker count is <code>(2 × CPU cores) + 1</code>.</p>
+
+    <div class="app-list">
+      <div class="app-row">
+        <div class="app-domain">Railway / Render</div>
+        <div class="app-desc">
+          <span class="app-simple">Zero-config container deployment, auto-scaling</span>
+          Ideal for startups: push a Dockerfile, get a deployed URL. Supports env vars, persistent volumes, and managed Redis + MongoDB add-ons. Pay-per-use scaling with no infrastructure management overhead.
+        </div>
+      </div>
+      <div class="app-row">
+        <div class="app-domain">AWS ECS / Fargate</div>
+        <div class="app-desc">
+          <span class="app-simple">Managed containers without Kubernetes complexity</span>
+          Run Docker containers at scale without managing EC2 instances. ALB for load balancing, ECR for image registry, CloudWatch for logs. Best for teams already in the AWS ecosystem.
+        </div>
+      </div>
+      <div class="app-row">
+        <div class="app-domain">Kubernetes (EKS/GKE)</div>
+        <div class="app-desc">
+          <span class="app-simple">Maximum control, horizontal pod autoscaling</span>
+          Horizontal Pod Autoscaler scales FastAPI deployments based on CPU/memory metrics. Appropriate when you need fine-grained traffic control, multi-region deployments, or complex service mesh routing.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 21 SCALING -->
+  <section class="section" id="s21">
+    <div class="section-header">
+      <span class="section-num">21</span>
+      <h2>Scaling FastAPI Systems</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>Scaling means more capacity. Vertical scaling adds more power to one machine. Horizontal scaling adds more machines. FastAPI is built to scale horizontally — spin up ten identical containers behind a load balancer, and you handle ten times the traffic. The key: make each instance stateless so any request can go to any server.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="adv-item">
+        <div class="adv-dot"></div>
+        <div>
+          <h4>Stateless Design</h4>
+          <span class="simple-role">Any server can handle any request</span>
+          <p>Store sessions in Redis, not in-process memory. JWT authentication is inherently stateless — no session store needed. Connection state for WebSockets requires Redis Pub/Sub for multi-node broadcast.</p>
+        </div>
+      </div>
+      <div class="adv-item">
+        <div class="adv-dot"></div>
+        <div>
+          <h4>Async Concurrency</h4>
+          <span class="simple-role">One worker handles thousands of I/O requests</span>
+          <p>A single Uvicorn worker can handle 1,000+ concurrent connections for I/O-bound workloads. Four workers on a 2-core instance can sustain 4,000+ concurrent connections — comparable to Node.js throughput.</p>
+        </div>
+      </div>
+      <div class="adv-item">
+        <div class="adv-dot"></div>
+        <div>
+          <h4>MongoDB Connection Pooling</h4>
+          <span class="simple-role">Reuse connections, don't open new ones per request</span>
+          <p>Motor maintains a connection pool (default: 100 connections per client). The Motor client must be instantiated once at startup and shared across all requests — never create a new client per request.</p>
+        </div>
+      </div>
+      <div class="adv-item">
+        <div class="adv-dot"></div>
+        <div>
+          <h4>Database Indexing</h4>
+          <span class="simple-role">Indexes turn 500ms queries into 1ms queries</span>
+          <p>Create compound indexes on MongoDB collections for every common query pattern. <code>db.users.create_index([("email", 1)], unique=True)</code>. Missing indexes are the single largest source of database performance degradation at scale.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 22 BEST PRACTICES -->
+  <section class="section" id="s22">
+    <div class="section-header">
+      <span class="section-num">22</span>
+      <h2>Best Practices</h2>
+    </div>
+
+    <div class="rag-types">
+      <div class="rag-type-card">
+        <span class="rag-type-badge badge-core">Architecture</span>
+        <h3>Separation of Concerns</h3>
+        <span class="simple-role">Routes, services, data — three distinct layers</span>
+        <p>Route handlers orchestrate, not execute. Business logic belongs in service functions. Database queries belong in repository functions. Never write MongoDB queries directly in route handlers. This makes each layer independently testable.</p>
+      </div>
+      <div class="rag-type-card">
+        <span class="rag-type-badge badge-async">Performance</span>
+        <h3>Never Block the Event Loop</h3>
+        <span class="simple-role">Use async drivers for everything I/O</span>
+        <p>Replace synchronous libraries: <code>requests</code> → <code>httpx</code>; <code>pymongo</code> → <code>motor</code>; <code>redis-py</code> → <code>redis.asyncio</code>; <code>open()</code> → <code>aiofiles</code>. A single blocking call can stall all concurrent requests.</p>
+      </div>
+      <div class="rag-type-card">
+        <span class="rag-type-badge badge-security">Security</span>
+        <h3>Environment-Driven Config</h3>
+        <span class="simple-role">Secrets never in code, always in env vars</span>
+        <p>Use <code>pydantic-settings</code> <code>BaseSettings</code> for all configuration. Load <code>SECRET_KEY</code>, <code>MONGODB_URI</code>, and API keys exclusively from environment variables. Use <code>.env</code> locally, secrets managers (AWS Secrets Manager, Vault) in production.</p>
+      </div>
+      <div class="rag-type-card">
+        <span class="rag-type-badge badge-prod">Production</span>
+        <h3>Structured Logging</h3>
+        <span class="simple-role">JSON logs with request IDs for correlation</span>
+        <p>Use <code>structlog</code> or configure Python <code>logging</code> with a JSON formatter. Always include <code>request_id</code>, <code>user_id</code>, and latency in log records. This enables distributed trace correlation in tools like Datadog, Grafana, or CloudWatch.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 23 ADVANCED PATTERNS -->
+  <section class="section" id="s23">
+    <div class="section-header">
+      <span class="section-num">23</span>
+      <h2>Advanced Backend Patterns</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>Once the basics work, senior engineers apply patterns that make large systems maintainable: repositories that hide MongoDB details, event buses that decouple components, circuit breakers that fail gracefully, and health endpoints that let infrastructure verify the app is operational before routing traffic to it.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-title">Repository pattern + health check endpoint</span>
+        <span class="code-lang">PYTHON</span>
+      </div>
+      <pre><span class="cm"># Repository pattern — abstract MongoDB away from business logic</span>
+<span class="kw">class</span> <span class="tp">UserRepository</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, db: <span class="tp">AsyncIOMotorDatabase</span>):
+        self.collection = db.users
+
+    <span class="kw">async def</span> <span class="fn">find_by_email</span>(self, email: str) -> dict | <span class="kw">None</span>:
+        <span class="kw">return await</span> self.collection.find_one({<span class="str">"email"</span>: email})
+
+    <span class="kw">async def</span> <span class="fn">find_by_id</span>(self, user_id: str) -> dict | <span class="kw">None</span>:
+        <span class="kw">return await</span> self.collection.find_one({<span class="str">"_id"</span>: ObjectId(user_id)})
+
+    <span class="kw">async def</span> <span class="fn">create</span>(self, data: dict) -> dict:
+        result = <span class="kw">await</span> self.collection.insert_one(data)
+        <span class="kw">return await</span> self.find_by_id(str(result.inserted_id))
+
+<span class="cm"># Health check — Kubernetes liveness/readiness probes</span>
+<span class="dec">@app.get</span>(<span class="str">"/health"</span>, tags=[<span class="str">"System"</span>])
+<span class="kw">async def</span> <span class="fn">health_check</span>(db = Depends(get_db)):
+    checks = {}
+    <span class="kw">try</span>:
+        <span class="kw">await</span> db.command(<span class="str">"ping"</span>)
+        checks[<span class="str">"mongodb"</span>] = <span class="str">"ok"</span>
+    <span class="kw">except</span> Exception:
+        checks[<span class="str">"mongodb"</span>] = <span class="str">"error"</span>
+    <span class="kw">try</span>:
+        <span class="kw">await</span> redis_client.ping()
+        checks[<span class="str">"redis"</span>] = <span class="str">"ok"</span>
+    <span class="kw">except</span> Exception:
+        checks[<span class="str">"redis"</span>] = <span class="str">"error"</span>
+
+    healthy = all(v == <span class="str">"ok"</span> <span class="kw">for</span> v <span class="kw">in</span> checks.values())
+    <span class="kw">return</span> JSONResponse(
+        status_code=<span class="num">200</span> <span class="kw">if</span> healthy <span class="kw">else</span> <span class="num">503</span>,
+        content={<span class="str">"status"</span>: <span class="str">"healthy"</span> <span class="kw">if</span> healthy <span class="kw">else</span> <span class="str">"degraded"</span>, <span class="str">"checks"</span>: checks},
+    )</pre>
+    </div>
+  </section>
+
+  <!-- 24 FUTURE -->
+  <section class="section" id="s24">
+    <div class="section-header">
+      <span class="section-num">24</span>
+      <h2>Future of Python Backend Engineering</h2>
+    </div>
+
+    <div class="simple-box">
+      <div class="simple-box-label">The Simple Idea</div>
+      <p>Python backend engineering is converging on async-first, AI-native, and compiled-speed runtimes. The next wave of Python backends will be faster, safer, and AI-integrated by default — not as an afterthought. FastAPI is already the dominant framework for AI infrastructure, and that position will strengthen.</p>
+    </div>
+
+    <div class="future-grid">
+      <div class="future-card">
+        <div class="future-tag">Emerging</div>
+        <h3>AI-Native APIs</h3>
+        <span class="simple-role">LLM endpoints as first-class API citizens</span>
+        <p>FastAPI is the standard framework for building AI API wrappers — OpenAI-compatible endpoints, streaming generation APIs, and agentic tool servers via MCP. Purpose-built for the async, streaming, long-lived request patterns that LLM inference demands.</p>
+      </div>
+      <div class="future-card">
+        <div class="future-tag">Active</div>
+        <h3>Pydantic v2 + Rust Core</h3>
+        <span class="simple-role">Python speed approaching compiled languages</span>
+        <p>Pydantic v2's Rust validation core delivers 5–50x throughput improvements over v1. As more of FastAPI's hot path moves into compiled extensions (via msgspec, orjson, and Rust bindings), the performance gap vs Go and Node continues to narrow.</p>
+      </div>
+      <div class="future-card">
+        <div class="future-tag">Infrastructure</div>
+        <h3>Serverless FastAPI</h3>
+        <span class="simple-role">Pay-per-request, zero cold starts</span>
+        <p>Mangum adapts FastAPI for AWS Lambda. Modal, Fly.io, and Railway Serverless provide container-based function execution with sub-100ms cold starts. FastAPI's lightweight startup and minimal import chain make it competitive with Node.js in serverless environments.</p>
+      </div>
+      <div class="future-card">
+        <div class="future-tag">Streaming</div>
+        <h3>Server-Sent Events &amp; Streaming</h3>
+        <span class="simple-role">Long-running streamed responses, native in ASGI</span>
+        <p>FastAPI's <code>StreamingResponse</code> and <code>EventSourceResponse</code> enable token-by-token LLM output, live data feeds, and file streaming at scale. First-class HTTP/2 support via ASGI enables multiplexed streaming without WebSocket overhead.</p>
+      </div>
+      <div class="future-card">
+        <div class="future-tag">Graph</div>
+        <h3>FastAPI + GraphQL</h3>
+        <span class="simple-role">Strawberry brings type-safe GraphQL to FastAPI</span>
+        <p>Strawberry integrates natively with FastAPI and Pydantic, generating a fully type-safe GraphQL schema from Python dataclasses. Enables flexible client-driven queries alongside traditional REST endpoints in a single FastAPI application.</p>
+      </div>
+      <div class="future-card">
+        <div class="future-tag">Observability</div>
+        <h3>OpenTelemetry Native</h3>
+        <span class="simple-role">Distributed tracing across every service</span>
+        <p>OpenTelemetry auto-instrumentation for FastAPI propagates trace context across HTTP, MongoDB, and Redis operations — enabling end-to-end distributed tracing across microservices without manual instrumentation code in business logic.</p>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top: 36px;">
+      <p>FastAPI has become the de facto backend framework for AI-era Python engineering. As inference APIs, agent tool servers, and data pipelines become the dominant backend workload, its async-first, type-safe, zero-boilerplate architecture positions it as the natural foundation for the next decade of Python backend systems.</p>
+    </div>
+
+    <div class="stack-section" style="margin-top: 32px;">
+      <div>
+        <div class="stack-group-label">Core Framework Stack</div>
+        <div class="stack-chips">
+          <span class="chip accent">FastAPI</span>
+          <span class="chip accent">Pydantic v2</span>
+          <span class="chip accent">Uvicorn</span>
+          <span class="chip accent">Starlette</span>
+          <span class="chip">Gunicorn</span>
+        </div>
+      </div>
+      <div>
+        <div class="stack-group-label">Database &amp; Caching</div>
+        <div class="stack-chips">
+          <span class="chip accent">MongoDB Atlas</span>
+          <span class="chip accent">Motor (async)</span>
+          <span class="chip accent">Redis</span>
+          <span class="chip">Beanie ODM</span>
+          <span class="chip">pgvector</span>
+        </div>
+      </div>
+      <div>
+        <div class="stack-group-label">Auth &amp; Security</div>
+        <div class="stack-chips">
+          <span class="chip">python-jose</span>
+          <span class="chip">passlib[bcrypt]</span>
+          <span class="chip">OAuth2 / OIDC</span>
+          <span class="chip">pydantic-settings</span>
+        </div>
+      </div>
+      <div>
+        <div class="stack-group-label">Testing &amp; Observability</div>
+        <div class="stack-chips">
+          <span class="chip">pytest-asyncio</span>
+          <span class="chip">httpx</span>
+          <span class="chip">Sentry SDK</span>
+          <span class="chip">OpenTelemetry</span>
+          <span class="chip">structlog</span>
+        </div>
+      </div>
+      <div>
+        <div class="stack-group-label">Deployment</div>
+        <div class="stack-chips">
+          <span class="chip accent">Docker</span>
+          <span class="chip accent">Docker Compose</span>
+          <span class="chip">Railway</span>
+          <span class="chip">Render</span>
+          <span class="chip">AWS ECS</span>
+          <span class="chip">Kubernetes</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- FOOTER -->
+<div class="doc-footer">
+  <p>FastAPI Systems Engineering · Technical Reference Handbook</p>
+  <p>For backend engineers, AI engineers &amp; startup founders</p>
+</div>
+
+</body>
+</html>
